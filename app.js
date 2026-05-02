@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
         taskPriority: document.getElementById('task-priority'),
         taskDueDate: document.getElementById('task-due-date'),
         taskStatus: document.getElementById('task-status'),
+        projectInput: document.getElementById('projectInput'),
+        sprintInput: document.getElementById('sprintInput'),
 
         // Lists
         listUnassigned: document.getElementById('list-unassigned'),
@@ -188,6 +190,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const assigneeName = window.escapeHTML(rawAssignee);
         const assigneeInitials = isUnassigned ? '?' : window.escapeHTML(getInitials(rawAssignee));
         const safePriority = window.escapeHTML(task.priority);
+        const safeProject = window.escapeHTML(task.project);
+        const safeSprint = window.escapeHTML(task.sprint);
+
+        let metaTagsHtml = '';
+        if (safeProject || safeSprint) {
+            metaTagsHtml = `<div class="task-tags">${safeProject ? `<span class="task-tag tag-project">${safeProject}</span>` : ''}${safeSprint ? `<span class="task-tag tag-sprint">${safeSprint}</span>` : ''}</div>`;
+        }
 
         let priorityHtml = '';
         if (task.priority) {
@@ -226,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
             <div class="task-title">${safeTitle}</div>
+            ${metaTagsHtml}
             ${dueDateHtml}
             <div class="task-meta">
                 <div class="task-assignee" title="${assigneeName}">
@@ -272,6 +282,8 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.taskPriority.value = task.priority || 'medium';
             elements.taskDueDate.value = task.dueDate || '';
             elements.taskStatus.value = task.status;
+            elements.projectInput.value = task.project || '';
+            elements.sprintInput.value = task.sprint || '';
         } else {
             elements.modalTitle.textContent = 'Create New Task';
             elements.taskForm.reset();
@@ -280,6 +292,8 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.taskPriority.value = 'medium';
             elements.taskDueDate.value = '';
             elements.taskStatus.value = 'todo'; // default
+            elements.projectInput.value = '';
+            elements.sprintInput.value = '';
         }
         elements.modal.classList.remove('hidden');
     }
@@ -349,6 +363,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 taskAssignee: assignee,
                 priority: elements.taskPriority.value,
                 dueDate: elements.taskDueDate.value,
+                project: elements.projectInput.value.trim(),
+                sprint: elements.sprintInput.value.trim(),
                 status: status,
                 taskCreatedAt: parseInt(elements.taskCreatedAt.value) || Date.now()
             };
