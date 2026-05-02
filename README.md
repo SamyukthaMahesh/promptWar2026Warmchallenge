@@ -6,9 +6,16 @@
 
 **TaskBoard Pro** is a modern, lightweight, and highly responsive web-based Kanban task management application. Built entirely with Vanilla JavaScript, HTML5, and CSS3, it offers a blazing-fast user experience without the overhead of heavy frameworks. 
 
-The application is fully containerized using Docker and securely hosted on Google Cloud Run.
+## Google Cloud Run Deployment
 
-### 🔗 [Live Demo (Google Cloud Run)](https://task-board-app-712574756217.us-central1.run.app/)
+This application is containerized using Docker and served through Nginx.
+It is deployed on Google Cloud Run.
+
+Architecture:
+GitHub Repository → Docker Build → Nginx Static Server → Google Cloud Run → Public URL
+
+Live URL:
+https://task-board-app-712574756217.us-central1.run.app/
 
 ---
 

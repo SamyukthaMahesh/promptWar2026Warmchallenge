@@ -51,6 +51,28 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUnassignedCount();
     }
 
+    // --- Utilities ---
+    window.escapeHTML = function(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>'"]/g, 
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag)
+        );
+    };
+
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
     // --- Core Logic ---
     function saveTasks() {
         localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -156,14 +178,20 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = 'task-card';
         card.draggable = true;
         card.dataset.id = task.id;
+        card.tabIndex = 0; // Accessibility
 
         const isUnassigned = !task.taskAssignee || task.taskAssignee.trim() === '';
-        const assigneeInitials = isUnassigned ? '?' : getInitials(task.taskAssignee);
-        const assigneeName = isUnassigned ? 'Unassigned' : task.taskAssignee;
+        const rawAssignee = isUnassigned ? 'Unassigned' : task.taskAssignee;
+        
+        // Security: Sanitize all user inputs before rendering into innerHTML
+        const safeTitle = window.escapeHTML(task.taskTitle);
+        const assigneeName = window.escapeHTML(rawAssignee);
+        const assigneeInitials = isUnassigned ? '?' : window.escapeHTML(getInitials(rawAssignee));
+        const safePriority = window.escapeHTML(task.priority);
 
         let priorityHtml = '';
         if (task.priority) {
-            priorityHtml = `<div class="priority-badge priority-${task.priority}">${task.priority}</div>`;
+            priorityHtml = `<div class="priority-badge priority-${safePriority}">${safePriority}</div>`;
         }
 
         let dueDateHtml = '';
@@ -197,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 </button>
             </div>
-            <div class="task-title">${task.taskTitle}</div>
+            <div class="task-title">${safeTitle}</div>
             ${dueDateHtml}
             <div class="task-meta">
                 <div class="task-assignee" title="${assigneeName}">
@@ -280,9 +308,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners Setup ---
     function setupEventListeners() {
         // Search
-        elements.searchInput.addEventListener('input', () => {
+        elements.searchInput.addEventListener('input', debounce(() => {
             renderBoard();
-        });
+        }, 300));
 
         // Modal toggles
         elements.createTaskBtn.addEventListener('click', () => openModal());
@@ -298,6 +326,12 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.taskForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
+            const rawTitle = elements.taskTitle.value.trim();
+            if (!rawTitle) {
+                alert("Task title cannot be empty!");
+                return;
+            }
+
             let status = elements.taskStatus.value;
             let assignee = elements.taskAssignee.value.trim();
 

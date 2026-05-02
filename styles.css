@@ -583,3 +583,15 @@ select option {
     display: inline-flex;
     margin-left: -0.4rem;
 }
+
+/* Accessibility: Focus States */
+button:focus-visible, 
+input:focus-visible, 
+select:focus-visible, 
+.task-card:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+.task-card[draggable="true"]:focus-visible {
+    border-color: var(--primary-color);
+}
