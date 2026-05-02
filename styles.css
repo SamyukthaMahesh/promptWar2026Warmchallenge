@@ -493,3 +493,93 @@ select option {
     gap: 1rem;
     margin-top: 2rem;
 }
+
+/* --- New Features --- */
+
+/* Search Bar */
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--text-secondary);
+}
+#search-input {
+    padding-left: 2.25rem;
+    width: 220px;
+    background: rgba(255, 255, 255, 0.05);
+}
+#search-input:focus {
+    width: 280px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Progress Stats */
+.progress-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 150px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+#progress-text {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+.progress-bar-container {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+.progress-bar-fill {
+    height: 100%;
+    background: var(--col-done);
+    border-radius: 9999px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Priority Badges */
+.priority-badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.priority-low { background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+.priority-medium { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+.priority-high { background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+
+/* Due Date */
+.task-due-date {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+}
+.task-due-date svg {
+    opacity: 0.7;
+}
+.task-due-date.overdue {
+    color: #f87171;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.25rem;
+    display: inline-flex;
+    margin-left: -0.4rem;
+}

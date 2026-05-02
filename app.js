@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
         unassignedBadge: document.getElementById('unassigned-badge'),
         unassignedCount: document.getElementById('unassigned-count'),
         createTaskBtn: document.getElementById('create-task-btn'),
+        searchInput: document.getElementById('search-input'),
+        progressText: document.getElementById('progress-text'),
+        progressBarFill: document.getElementById('progress-bar-fill'),
         modal: document.getElementById('task-modal'),
         closeModalBtn: document.getElementById('close-modal-btn'),
         cancelTaskBtn: document.getElementById('cancel-task-btn'),
@@ -20,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
         taskTitle: document.getElementById('task-title'),
         taskCreator: document.getElementById('task-creator'),
         taskAssignee: document.getElementById('task-assignee'),
+        taskPriority: document.getElementById('task-priority'),
+        taskDueDate: document.getElementById('task-due-date'),
         taskStatus: document.getElementById('task-status'),
 
         // Lists
@@ -96,6 +101,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateProgress() {
+        if (tasks.length === 0) {
+            elements.progressText.textContent = `0/0 tasks done (0%)`;
+            elements.progressBarFill.style.width = `0%`;
+            return;
+        }
+        const doneTasks = tasks.filter(t => t.status === 'done').length;
+        const totalTasks = tasks.length;
+        const percentage = Math.round((doneTasks / totalTasks) * 100);
+        
+        elements.progressText.textContent = `${doneTasks}/${totalTasks} tasks done (${percentage}%)`;
+        elements.progressBarFill.style.width = `${percentage}%`;
+    }
+
     function renderBoard() {
         // Clear all lists
         Object.values(columnsConfig).forEach(col => {
@@ -103,18 +122,32 @@ document.addEventListener('DOMContentLoaded', () => {
             col.counter.textContent = '0';
         });
 
+        updateProgress();
+
+        const searchTerm = elements.searchInput.value.toLowerCase().trim();
+
         // Populate lists
         tasks.forEach(task => {
+            // Apply search filter (title, creator, assignee)
+            if (searchTerm) {
+                const titleMatch = task.taskTitle.toLowerCase().includes(searchTerm);
+                const creatorMatch = task.taskCreator && task.taskCreator.toLowerCase().includes(searchTerm);
+                const assigneeMatch = task.taskAssignee && task.taskAssignee.toLowerCase().includes(searchTerm);
+                
+                if (!titleMatch && !creatorMatch && !assigneeMatch) {
+                    return; // skip rendering this task
+                }
+            }
+
             const card = createTaskCard(task);
             if (columnsConfig[task.status]) {
                 columnsConfig[task.status].list.appendChild(card);
             }
         });
 
-        // Update counters
+        // Update counters based on rendered tasks
         Object.keys(columnsConfig).forEach(status => {
-            const count = tasks.filter(t => t.status === status).length;
-            columnsConfig[status].counter.textContent = count;
+            columnsConfig[status].counter.textContent = columnsConfig[status].list.children.length;
         });
     }
 
@@ -128,7 +161,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const assigneeInitials = isUnassigned ? '?' : getInitials(task.taskAssignee);
         const assigneeName = isUnassigned ? 'Unassigned' : task.taskAssignee;
 
+        let priorityHtml = '';
+        if (task.priority) {
+            priorityHtml = `<div class="priority-badge priority-${task.priority}">${task.priority}</div>`;
+        }
+
+        let dueDateHtml = '';
+        if (task.dueDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const dueDateObj = new Date(task.dueDate + 'T00:00:00'); // Ensure local timezone parsing
+            
+            const isOverdue = dueDateObj < today && task.status !== 'done';
+            const overdueClass = isOverdue ? 'overdue' : '';
+            const overdueText = isOverdue ? ' (Overdue)' : '';
+            
+            const dateStr = dueDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            
+            dueDateHtml = `
+                <div class="task-due-date ${overdueClass}">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>${dateStr}${overdueText}</span>
+                </div>
+            `;
+        }
+
         card.innerHTML = `
+            ${priorityHtml}
             <div class="task-actions">
                 <button class="icon-btn edit-btn" title="Edit" aria-label="Edit">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -138,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
             <div class="task-title">${task.taskTitle}</div>
+            ${dueDateHtml}
             <div class="task-meta">
                 <div class="task-assignee" title="${assigneeName}">
                     <div class="avatar ${isUnassigned ? 'unassigned' : ''}">${assigneeInitials}</div>
@@ -180,12 +241,16 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.taskTitle.value = task.taskTitle;
             elements.taskCreator.value = task.taskCreator || '';
             elements.taskAssignee.value = task.taskAssignee || '';
+            elements.taskPriority.value = task.priority || 'medium';
+            elements.taskDueDate.value = task.dueDate || '';
             elements.taskStatus.value = task.status;
         } else {
             elements.modalTitle.textContent = 'Create New Task';
             elements.taskForm.reset();
             elements.taskId.value = '';
             elements.taskCreatedAt.value = Date.now();
+            elements.taskPriority.value = 'medium';
+            elements.taskDueDate.value = '';
             elements.taskStatus.value = 'todo'; // default
         }
         elements.modal.classList.remove('hidden');
@@ -214,6 +279,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners Setup ---
     function setupEventListeners() {
+        // Search
+        elements.searchInput.addEventListener('input', () => {
+            renderBoard();
+        });
+
         // Modal toggles
         elements.createTaskBtn.addEventListener('click', () => openModal());
         elements.closeModalBtn.addEventListener('click', closeModal);
@@ -243,6 +313,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 taskTitle: elements.taskTitle.value,
                 taskCreator: elements.taskCreator.value,
                 taskAssignee: assignee,
+                priority: elements.taskPriority.value,
+                dueDate: elements.taskDueDate.value,
                 status: status,
                 taskCreatedAt: parseInt(elements.taskCreatedAt.value) || Date.now()
             };
