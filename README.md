@@ -4,7 +4,9 @@
 ![Vanilla JS](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![Cloud Run](https://img.shields.io/badge/Google_Cloud-Run-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
 
-**TaskBoard Pro** is a modern, lightweight, and highly responsive web-based Kanban task management application. Built entirely with Vanilla JavaScript, HTML5, and CSS3, it offers a blazing-fast user experience without the overhead of heavy frameworks. 
+**TaskBoard Pro** is a modern, lightweight, and highly responsive web-based Kanban task management application built with Vanilla JavaScript, HTML5, and CSS3.
+
+---
 
 ## Google Cloud Run Deployment
 
@@ -12,54 +14,94 @@ This application is containerized using Docker and served through Nginx.
 It is deployed on Google Cloud Run.
 
 Architecture:
-GitHub Repository → Docker Build → Nginx Static Server → Google Cloud Run → Public URL
+GitHub Repository → Dockerfile → Nginx Static Server → Google Cloud Run → Public URL
 
 Live URL:
 https://task-board-app-712574756217.us-central1.run.app/
 
+Health Check:
+https://task-board-app-712574756217.us-central1.run.app/health.html
+
 ---
 
-## ✨ Key Features
+## ✨ Features
 
-* **Interactive Drag-and-Drop Kanban Board:** Seamlessly move tasks across workflow stages (Unassigned, To Do, In Progress, Done).
-* **Advanced Task Tracking:** 
-  * Add custom titles, creators, and assignees to every task.
-  * Assign **Priority Badges** (Low, Medium, High).
-  * Set **Due Dates** — tasks automatically highlight as **(Overdue)** if the deadline passes!
-* **Real-Time Search & Filtering:** Instantly filter tasks by title, creator, or assignee using the sleek search bar.
-* **Live Progress Tracking:** The built-in progress bar dynamically calculates your completion rate (e.g., *3/10 tasks done — 30% complete*).
-* **Data Persistence:** Built-in Local Storage functionality ensures you never lose your workflow progress when you refresh the page.
-* **Premium Aesthetics:** Features a stunning "Glassmorphism" design with frosted glass panels, dynamic gradients, and smooth micro-animations.
+- Kanban board with drag-and-drop across columns (Unassigned, To Do, In Progress, Done)
+- Priority tags (Low / Medium / High) shown as colored badges with text
+- Due date field with automatic **Overdue** detection for past dates
+- Real-time search and filter by title, creator, or assignee (debounced)
+- Progress percentage bar showing tasks done vs total
+- Column counters that update in real-time
+- LocalStorage persistence across browser refresh
+- Accessible keyboard navigation with visible focus states
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Frontend:** HTML5, CSS3, Vanilla JavaScript
-* **Web Server:** Nginx (Alpine)
-* **Containerization:** Docker
-* **Deployment & Hosting:** Google Cloud Run (Continuous Deployment via GitHub)
+| Layer          | Technology                  |
+|----------------|-----------------------------|
+| Frontend       | HTML5, CSS3, Vanilla JavaScript |
+| Web Server     | Nginx (Alpine)              |
+| Container      | Docker                      |
+| Hosting        | Google Cloud Run            |
+| CI/CD          | GitHub → Cloud Build        |
 
 ---
 
-## 💻 Local Setup Instructions
+## 🔒 Security
 
-Since this app uses Vanilla JavaScript and Local Storage, running it locally is incredibly simple:
+- All user inputs are sanitized via `escapeHTML()` before rendering to prevent XSS.
+- Task title field is validated — empty titles are rejected with a clear error message.
+- No external dependencies or third-party scripts are loaded.
 
-1. **Clone the repository:**
+---
+
+## ♿ Accessibility
+
+- All form inputs have explicit `<label>` elements.
+- Edit and delete icon buttons include descriptive `aria-label` attributes.
+- All interactive elements are keyboard focusable with visible `:focus-visible` outlines.
+- Priority badges include both color and text for color-blind users.
+- Semantic HTML: `<header>`, `<main>`, `<section>`, `<form>` used appropriately.
+
+---
+
+## 🧪 Testing
+
+See [MANUAL_TESTING.md](./MANUAL_TESTING.md) for the full test case checklist.
+
+Automated console-based logic validation runs on page load via `tests.js`.
+Open the browser console (F12) after loading the app to view test results.
+
+---
+
+## 💻 Local Setup
+
+1. Clone the repo:
    ```bash
    git clone https://github.com/SamyukthaMahesh/promptWar2026Warmchallenge.git
-   ```
-2. **Navigate to the directory:**
-   ```bash
    cd promptWar2026Warmchallenge
    ```
-3. **Run the app:**
-   Simply double-click the `index.html` file to open it in any modern web browser! No `npm install` or local servers required!
+2. Open `index.html` directly in any browser — no build step or server required.
 
-*(Alternatively, you can build and run the Docker container locally using `docker build -t taskboard .` and `docker run -p 8080:8080 taskboard`)*
+Or run via Docker:
+```bash
+docker build -t taskboard .
+docker run -p 8080:8080 taskboard
+```
 
 ---
 
-## 🎯 Project Agenda / Objective
-Designed as a robust solution to help individuals and small teams intuitively organize, track, and manage their daily workflow without the clutter of overly complex enterprise tools.
+## 🔮 Future Enhancements
+
+- Google Sign-In for authenticated users
+- Firebase Firestore for multi-user real-time sync
+- Multi-board and team workspace support
+- Email notifications for overdue tasks
+
+---
+
+## 🎯 Project Objective
+
+Designed to help individuals and small teams intuitively organize, track, and manage their workflow without the complexity of enterprise tools.
